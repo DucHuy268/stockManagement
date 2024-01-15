@@ -1,8 +1,9 @@
-import streamlit as st
-import pandas as pd
 import os
 from io import BytesIO
-from pyxlsb import open_workbook as open_xlsb
+
+import pandas as pd
+import streamlit as st
+
 
 def main():
     st.title("Stock Management")
