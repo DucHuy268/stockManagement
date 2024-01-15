@@ -1,6 +1,8 @@
 import streamlit as st
 import pandas as pd
 import os
+from io import BytesIO
+from pyxlsb import open_workbook as open_xlsb
 
 def main():
     st.title("Stock Management")
@@ -44,6 +46,11 @@ def main():
             # Update the Excel file
             save_data(data, excel_file_name)
 
+            df_xlsx = to_excel(data)
+            st.download_button(label='📥 Download Current Result',
+                               data=df_xlsx,
+                               file_name=excel_file_name)
+
     else:
         st.warning(f"The file {excel_file_name} does not exist. Please create a new file.")
         create_file_button = st.button("Create File")
@@ -80,6 +87,19 @@ def create_empty_file(excel_file_name, column_names=None):
         column_names = ["Column_1", "Column_2"]
     empty_data = pd.DataFrame(columns=column_names)
     empty_data.to_excel(excel_file_name, index=False)
+
+
+def to_excel(df):
+    output = BytesIO()
+    writer = pd.ExcelWriter(output, engine='xlsxwriter')
+    df.to_excel(writer, index=False, sheet_name='Sheet1')
+    workbook = writer.book
+    worksheet = writer.sheets['Sheet1']
+    format1 = workbook.add_format({'num_format': '0.00'})
+    worksheet.set_column('A:A', None, format1)
+    writer.close()
+    processed_data = output.getvalue()
+    return processed_data
 
 
 if __name__ == "__main__":
